@@ -1,0 +1,491 @@
+{
+  "dns": {
+    "hosts": {
+      "dns.google": "8.8.8.8",
+      "cloudflare-dns.com": "1.1.1.1"
+    },
+    "servers": [
+      "https://cloudflare-dns.com/dns-query",
+      {
+        "address": "https://cloudflare-dns.com/dns-query",
+        "domains": []
+      }
+    ],
+    "queryStrategy": "UseIPv4"
+  },
+  "log": {
+    "loglevel": "warning"
+  },
+  "policy": {
+    "levels": {
+      "8": {
+        "connIdle": 300,
+        "handshake": 4,
+        "uplinkOnly": 1,
+        "downlinkOnly": 1
+      }
+    }
+  },
+  "routing": {
+    "rules": [
+      {
+        "type": "field",
+        "protocol": [
+          "bittorrent"
+        ],
+        "outboundTag": "direct"
+      },
+      {
+        "port": 443,
+        "type": "field",
+        "network": "udp",
+        "outboundTag": "block"
+      },
+      {
+        "type": "field",
+        "domain": [
+          "domain:push.apple.com",
+          "domain:api.push.apple.com",
+          "domain:push-apple.com.akadns.net",
+          "domain:mtalk.google.com",
+          "domain:mobile.events.data.microsoft.com",
+          "regexp:.*-courier\\.push\\.apple\\.com$"
+        ],
+        "outboundTag": "direct"
+      },
+      {
+        "ip": [
+          "17.0.0.0/8"
+        ],
+        "type": "field",
+        "outboundTag": "direct"
+      },
+      {
+        "type": "field",
+        "domain": [
+          "tiktok.com",
+          "tiktokcdn.com",
+          "tiktokv.com",
+          "tiktokcdn-us.com",
+          "byteoversea.com",
+          "ibytedtos.com",
+          "muscdn.com",
+          "musical.ly",
+          "tik-tokapi.com",
+          "ttwstatic.com",
+          "ipstatp.com",
+          "sgpstatp.com"
+        ],
+        "balancerTag": "Super_Balancer"
+      },
+      {
+        "type": "field",
+        "domain": [
+          "terratraf.io",
+          "t-tech.team",
+          "gravityfield.ai",
+          "diginetica.net",
+          "appsflyer.com",
+          "onelink.me",
+          "branch.io",
+          "adjust.com",
+          "appmetrica.yandex.ru",
+          "appmetrica.yandex.net",
+          "mc.yandex.ru",
+          "analytics.mobile.yandex.net",
+          "and.doubleclick.net",
+          "app-measurement.com",
+          "firebaseinstallations.googleapis.com",
+          "in-app-messaging.firebase.googleapis.com",
+          "settings.crashlytics.com"
+        ],
+        "outboundTag": "direct"
+      },
+      {
+        "type": "field",
+        "domain": [
+          "regexp:.*\\.ru$",
+          "regexp:.*\\.su$",
+          "regexp:.*\\.by$",
+          "regexp:.*\\.xn--p1ai$",
+          "vk.com",
+          "userapi.com",
+          "vk-portal.net",
+          "mycdn.me",
+          "yandex.ru",
+          "yastatic.net",
+          "ya.ru",
+          "2gis.com",
+          "ozon.ru",
+          "ozon.com",
+          "ozonusercontent.com",
+          "wildberries.ru",
+          "wbstatic.net",
+          "wbbasket.ru",
+          "wbcontent.ru",
+          "wbx-content.ru",
+          "wildauth.ru",
+          "wildberries-analytics.ru",
+          "wb.ru",
+          "trbcdn.net",
+          "mradx.net",
+          "premier.one",
+          "boosty.to",
+          "donationalerts.com",
+          "max.ru",
+          "avito.ru",
+          "avito.st",
+          "timeweb.com",
+          "timeweb.cloud",
+          "lmru.tech",
+          "x5.tech",
+          "megamarket.ru",
+          "megamarket.tech",
+          "gazprombank.tech",
+          "tochka-tech.com",
+          "edadeal.io",
+          "targetads.io",
+          "flocktory.com",
+          "adhigh.net",
+          "tamtam.chat",
+          "okko.sport",
+          "okolo.app",
+          "sberbank.ru",
+          "tinkoff.ru",
+          "alfabank.ru",
+          "gosuslugi.ru",
+          "mail.ru",
+          "rambler.ru"
+        ],
+        "outboundTag": "direct"
+      },
+      {
+        "ip": [
+          "10.0.0.0/8",
+          "172.16.0.0/12",
+          "192.168.0.0/16",
+          "127.0.0.0/8",
+          "169.254.0.0/16",
+          "224.0.0.0/4",
+          "255.255.255.255"
+        ],
+        "type": "field",
+        "outboundTag": "direct"
+      },
+      {
+        "type": "field",
+        "network": "tcp,udp",
+        "balancerTag": "Super_Balancer"
+      }
+    ],
+    "balancers": [
+      {
+        "tag": "Super_Balancer",
+        "selector": [
+          "proxy"
+        ],
+        "strategy": {
+          "type": "leastLoad",
+          "settings": {
+            "maxRTT": "1s",
+            "expected": 2,
+            "baselines": [
+              "1s"
+            ],
+            "tolerance": 0.01
+          }
+        },
+        "fallbackTag": "direct"
+      }
+    ],
+    "domainMatcher": "hybrid",
+    "domainStrategy": "IPIfNonMatch"
+  },
+  "inbounds": [
+    {
+      "tag": "socks",
+      "port": 10808,
+      "listen": "127.0.0.1",
+      "protocol": "socks",
+      "settings": {
+        "udp": true,
+        "auth": "noauth",
+        "userLevel": 8
+      },
+      "sniffing": {
+        "enabled": true,
+        "routeOnly": false,
+        "destOverride": [
+          "http",
+          "tls",
+          "quic"
+        ]
+      }
+    },
+    {
+      "tag": "http",
+      "port": 10809,
+      "listen": "127.0.0.1",
+      "protocol": "http",
+      "settings": {
+        "userLevel": 8,
+        "allowTransparent": false
+      },
+      "sniffing": {
+        "enabled": true,
+        "routeOnly": false,
+        "destOverride": [
+          "http",
+          "tls",
+          "quic"
+        ]
+      }
+    }
+  ],
+  "outbounds": [
+    {
+      "tag": "proxy",
+      "protocol": "vless",
+      "settings": {
+        "vnext": [
+          {
+            "address": "bl1.nexfile.net",
+            "port": 4443,
+            "users": [
+              {
+                "id": "4ae8be67-f3e7-42b5-90ec-8c06503330fa",
+                "encryption": "none",
+                "flow": ""
+              }
+            ]
+          }
+        ]
+      },
+      "streamSettings": {
+        "network": "xhttp",
+        "xhttpSettings": {
+          "mode": "auto",
+          "host": "",
+          "path": "/api/v1/sync/"
+        },
+        "security": "tls",
+        "tlsSettings": {
+          "serverName": "bl1.nexfile.net",
+          "enableSessionResumption": false,
+          "fingerprint": "firefox"
+        }
+      }
+    },
+    {
+      "tag": "proxy-2",
+      "protocol": "vless",
+      "settings": {
+        "vnext": [
+          {
+            "address": "bl2.nexfile.net",
+            "port": 4443,
+            "users": [
+              {
+                "id": "4ae8be67-f3e7-42b5-90ec-8c06503330fa",
+                "encryption": "none",
+                "flow": ""
+              }
+            ]
+          }
+        ]
+      },
+      "streamSettings": {
+        "network": "xhttp",
+        "xhttpSettings": {
+          "mode": "auto",
+          "host": "",
+          "path": "/api/v1/sync/"
+        },
+        "security": "tls",
+        "tlsSettings": {
+          "serverName": "bl2.nexfile.net",
+          "enableSessionResumption": false,
+          "fingerprint": "firefox"
+        }
+      }
+    },
+    {
+      "tag": "proxy-3",
+      "protocol": "vless",
+      "settings": {
+        "vnext": [
+          {
+            "address": "bl3.nexfile.net",
+            "port": 4443,
+            "users": [
+              {
+                "id": "4ae8be67-f3e7-42b5-90ec-8c06503330fa",
+                "encryption": "none",
+                "flow": ""
+              }
+            ]
+          }
+        ]
+      },
+      "streamSettings": {
+        "network": "xhttp",
+        "xhttpSettings": {
+          "mode": "auto",
+          "host": "",
+          "path": "/api/v1/sync/"
+        },
+        "security": "tls",
+        "tlsSettings": {
+          "serverName": "bl3.nexfile.net",
+          "enableSessionResumption": false,
+          "fingerprint": "firefox"
+        }
+      }
+    },
+    {
+      "tag": "proxy-4",
+      "protocol": "hysteria",
+      "settings": {
+        "address": "bl1.nexfile.net",
+        "port": 4444,
+        "version": 2
+      },
+      "streamSettings": {
+        "network": "hysteria",
+        "hysteriaSettings": {
+          "version": 2,
+          "auth": "4ae8be67-f3e7-42b5-90ec-8c06503330fa"
+        },
+        "security": "tls",
+        "tlsSettings": {
+          "serverName": "bl1.nexfile.net",
+          "enableSessionResumption": false,
+          "fingerprint": "firefox",
+          "alpn": [
+            "h3"
+          ]
+        },
+        "finalmask": {
+          "quicParams": {
+            "debug": false,
+            "congestion": "bbr"
+          }
+        }
+      }
+    },
+    {
+      "tag": "proxy-5",
+      "protocol": "hysteria",
+      "settings": {
+        "address": "bl2.nexfile.net",
+        "port": 4444,
+        "version": 2
+      },
+      "streamSettings": {
+        "network": "hysteria",
+        "hysteriaSettings": {
+          "version": 2,
+          "auth": "4ae8be67-f3e7-42b5-90ec-8c06503330fa"
+        },
+        "security": "tls",
+        "tlsSettings": {
+          "serverName": "bl2.nexfile.net",
+          "enableSessionResumption": false,
+          "fingerprint": "firefox",
+          "alpn": [
+            "h3"
+          ]
+        },
+        "finalmask": {
+          "quicParams": {
+            "debug": false,
+            "congestion": "bbr"
+          }
+        }
+      }
+    },
+    {
+      "tag": "proxy-6",
+      "protocol": "hysteria",
+      "settings": {
+        "address": "bl3.nexfile.net",
+        "port": 4444,
+        "version": 2
+      },
+      "streamSettings": {
+        "network": "hysteria",
+        "hysteriaSettings": {
+          "version": 2,
+          "auth": "4ae8be67-f3e7-42b5-90ec-8c06503330fa"
+        },
+        "security": "tls",
+        "tlsSettings": {
+          "serverName": "bl3.nexfile.net",
+          "enableSessionResumption": false,
+          "fingerprint": "firefox",
+          "alpn": [
+            "h3"
+          ]
+        },
+        "finalmask": {
+          "quicParams": {
+            "debug": false,
+            "congestion": "bbr"
+          }
+        }
+      }
+    },
+    {
+      "tag": "direct",
+      "protocol": "freedom",
+      "settings": {
+        "domainStrategy": "ForceIPv4"
+      }
+    },
+    {
+      "tag": "block",
+      "protocol": "blackhole",
+      "settings": {
+        "response": {
+          "type": "http"
+        }
+      }
+    },
+    {
+      "tag": "fragment",
+      "protocol": "freedom",
+      "settings": {
+        "fragment": {
+          "length": "50-100",
+          "packets": "tlshello",
+          "interval": "10-20"
+        }
+      },
+      "streamSettings": {
+        "network": "raw",
+        "sockopt": {
+          "mark": 255,
+          "TcpNoDelay": true,
+          "domainStrategy": "ForceIPv4"
+        }
+      }
+    },
+    {
+      "tag": "dns-out",
+      "protocol": "dns"
+    }
+  ],
+  "burstObservatory": {
+    "pingConfig": {
+      "timeout": "3s",
+      "interval": "1m",
+      "sampling": 1,
+      "destination": "http://www.gstatic.com/generate_204",
+      "connectivity": ""
+    },
+    "subjectSelector": [
+      "proxy"
+    ]
+  },
+  "remarks": "🇧🇾 Беларусь"
+}
